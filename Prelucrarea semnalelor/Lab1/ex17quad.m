@@ -1,0 +1,1 @@
+I=quad('ex17f',pi/3,pi/2)
