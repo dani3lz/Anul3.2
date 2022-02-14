@@ -1,0 +1,2 @@
+<VBox prefHeight="543.0" prefWidth="862.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="md.dani3lz.tmpslab1.MainFXController">
