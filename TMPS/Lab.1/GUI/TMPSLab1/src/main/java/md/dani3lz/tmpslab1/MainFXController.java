@@ -38,6 +38,9 @@ public class MainFXController {
     boolean finalScene = false;
     boolean confirmed = false, showList = false;
     Employee employeeGlobal;
+    String corporationGlobal = "";
+    int componentClicked = 0;
+    boolean abstractNext = false, abstractPrev = false, factoryNext = false;
 
     private final int limitAbstract = 4, limitFactory = 3, limitPrototype = 2;
 
@@ -55,12 +58,10 @@ public class MainFXController {
         }
         if(confirmed){
             confirmed = false;
-            System.out.println("Scene: " + sceneGlobal);
             btn_confirm(methodGlobal,nrGlobal);
             if(!modify) {
                 sceneGlobal--;
             }
-
         } else {
             nrGlobal = 1;
         }
@@ -121,9 +122,6 @@ public class MainFXController {
 
     @FXML
     protected void onBtn5Click() {
-        System.out.println("Scene: " + sceneGlobal);
-
-
         if(showList){
             showList = false;
             listView.getItems().clear();
@@ -139,32 +137,8 @@ public class MainFXController {
 
             confirmed = false;
             finalScene = false;
-            setVisivilityToBtn(methodGlobal, sceneGlobal, nrGlobal);
+            setVisivilityToBtn(methodGlobal, sceneGlobal, lastNr);
         }
-        System.out.println("Scene after: " + sceneGlobal);
-    }
-
-    protected String getCorporationAbstract(){
-        if(nrGlobal == 1){
-            if(lastNr == 1){
-                return "Intel";
-            }else if (lastNr == 2){
-                return "AMD";
-            }
-        } else if(nrGlobal == 2){
-            if(lastNr == 1){
-                return "Nvidia";
-            }else if (lastNr ==2){
-                return "AMD";
-            }
-        } else if(nrGlobal == 3){
-            if(lastNr == 1){
-                return "Kingston";
-            }else if (lastNr == 2){
-                return "HyperX";
-            }
-        }
-        return "ХТО Я?";
     }
 
     protected void checkLimit(){
@@ -190,20 +164,11 @@ public class MainFXController {
                 if (nrGlobal == 1) {
                     listView.setVisible(true);
                     vboxText.setVisible(false);
-                    String corporation = getCorporationAbstract();
-                    listAbstract = componentsStore.getAbstractComponentsList(nrGlobal, corporation);
-                    int i = listAbstract.size() + 1;
-                    // ------------------------------------------
-                    for (int j = i; j < i + 5; j++) {
-                        System.out.println("J = " + j + " - " + corporation);
-                        new CPUAbstractFactory().createComponent(corporation, "Radeon RX Aurel Turbo GT-" + j, 105, 12000, 16000, "CPU");
-                    }
-                    // ------------------------------------------
-                    i = 1;
+                    listAbstract = componentsStore.getAbstractComponentsList(componentClicked, corporationGlobal);
+                    int i = 1;
                     for (AbstractComponents ac : listAbstract) {
-                        System.out.println("I = " + i);
                         listString.add("Nr." + i);
-                        listString.add("Corporation:\t\t" + corporation);
+                        listString.add("Corporation:\t\t" + corporationGlobal);
                         listString.add("Model:\t\t\t" + ac.model());
                         listString.add("Memory:\t\t\t" + ac.memory());
                         listString.add("Ranking:\t\t\t" + ac.ranking());
@@ -214,26 +179,15 @@ public class MainFXController {
                     listView.getItems().setAll(listString);
                     listString.clear();
                 }
-            } else if(nrGlobal == 2){
-                // Set
-            } else if(nrGlobal == 3){
-                // Delete
             }
         } else if (method.equalsIgnoreCase("Factory")) {
             if (scene == 3) {
-                if (nrGlobal == 1){
+                if (nrGlobal == 1) {
                     listView.setVisible(true);
                     vboxText.setVisible(false);
-                    listFactory = componentsStore.getComponentsList(lastNr);
-                    // ------------------------------------------
-                    int i = listFactory.size() + 1;
-                    for (int j = i; j < i + 5; j++) {
-                        new GPUFactory().createComponent("Nvidia", "GTX +100500 ASEM-" + j, 2022, 1500, 16000);
-                    }
-                    // ------------------------------------------
-                    i = 1;
+                    listFactory = componentsStore.getComponentsList(componentClicked);
+                    int i = 1;
                     for (Components c : listFactory) {
-                        System.out.println("I = " + i);
                         listString.add("Nr." + i);
                         listString.add("Corporation:\t\t" + c.corporation());
                         listString.add("Model:\t\t\t" + c.model());
@@ -246,10 +200,6 @@ public class MainFXController {
                     listView.getItems().setAll(listString);
                     listString.clear();
                 }
-            } else if (nrGlobal == 2){
-                // Set
-            } else if(nrGlobal == 3){
-                // Delete
             }
         } else if (method.equalsIgnoreCase("Prototype")) {
             if (scene == 2) {
@@ -258,12 +208,6 @@ public class MainFXController {
                         listView.setVisible(true);
                         vboxText.setVisible(false);
                         employees = Employee.employees;
-                        // ------------------------------------------
-                        /*int i = employees.size();
-                        for (int j = i; j < i + 5; j++) {
-                            new Employee("Alexandru", "Gumaniuc", 21 + j, "Ciort", false);
-                        }*/
-                        // ------------------------------------------
                         int i = 1;
                         for (Employee e : employees) {
                             Employee copied = e.copy();
@@ -278,6 +222,7 @@ public class MainFXController {
                         listView.getItems().setAll(listString);
                         listString.clear();
                     } else if (nrGlobal == 2){
+                        // Modify
                         if(!modify) {
                             vboxText.setVisible(true);
                             listView.setVisible(false);
@@ -305,8 +250,9 @@ public class MainFXController {
                             textfield_4.setPromptText("New position");
                         }
 
-                        // Modify
                     } else if(nrGlobal == 3){
+                        // Hire (Add)
+
                         vboxText.setVisible(true);
                         listView.setVisible(false);
                         textfield_1.setVisible(true);
@@ -320,8 +266,10 @@ public class MainFXController {
                         textfield_3.setPromptText("Age");
                         textfield_4.setPromptText("Position");
 
-                        // Hire
+
                     } else if(nrGlobal == 4){
+                        // Fire (Delete)
+
                         vboxText.setVisible(true);
                         listView.setVisible(false);
                         textfield_1.setVisible(true);
@@ -333,7 +281,6 @@ public class MainFXController {
                         textfield_1.setPromptText("First name");
                         textfield_2.setPromptText("Last name");
                         textfield_3.setPromptText("Age");
-                        // Fire
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -344,12 +291,82 @@ public class MainFXController {
 
     protected void btn_confirm(String method, int nr){
         if(method.equalsIgnoreCase("AbstractFactory")){
-            // gdf
+            if(nr==2){
+                // Add
+                String model = textfield_1.getText();
+                double rank = Double.parseDouble(textfield_2.getText());
+                int memory = Integer.parseInt(textfield_3.getText());
+                int price = Integer.parseInt(textfield_4.getText());
+                if (componentClicked == 1) { // CPU
+                    new CPUAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "CPU");
+                } else if (componentClicked == 2) { // GPU
+                    new GPUAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "GPU");
+                } else if (componentClicked == 3) { // RAM
+                    new RAMAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "RAM");
+                }
+            } else if(nr==3){
+                // Delete
+
+                String model = textfield_1.getText();
+                int memory = Integer.parseInt(textfield_2.getText());
+
+                try {
+                    List<AbstractComponents> list = ComponentsStore.getInstance().getAbstractComponentsList(componentClicked, corporationGlobal);
+                    int i = 0;
+                    for (AbstractComponents ac : list) {
+                        if (ac.model().contains(model) && memory == ac.memory()) {
+                            list.remove(i);
+                            System.out.println("\n\nSuccessfully.");
+                            break;
+                        }
+                        i++;
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
         } else if (method.equalsIgnoreCase("Factory")){
-            // gf
+            if(nr==2){
+                // Add
+
+                String corporation = textfield_1.getText();
+                String model = textfield_2.getText();
+                int year = Integer.parseInt(textfield_3.getText());
+                double rank = Double.parseDouble(textfield_4.getText());
+                int price = Integer.parseInt(textfield_5.getText());
+
+                if(componentClicked == 1){
+                    new md.dani3lz.tmpslab1.Factory.CPUFactory().createComponent(corporation, model, year, rank, price);
+                } else if (componentClicked == 2){
+                    new md.dani3lz.tmpslab1.Factory.GPUFactory().createComponent(corporation, model, year, rank, price);
+                } else if( componentClicked == 3){
+                    new md.dani3lz.tmpslab1.Factory.RAMFactory().createComponent(corporation, model, year, rank, price);
+                }
+
+            } else if(nr==3){
+                // Delete
+
+                String model = textfield_1.getText();
+                int year = Integer.parseInt(textfield_2.getText());
+
+                try {
+                    List<Components> list = ComponentsStore.getInstance().getComponentsList(componentClicked);
+                    int i = 0;
+                    for (Components c : list) {
+                        if (c.model().contains(model) && year == c.year()) {
+                            list.remove(i);
+                            System.out.println("\n\nSuccessfully.");
+                            break;
+                        }
+                        i++;
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
         } else if (method.equalsIgnoreCase("Prototype")){
             if(nr == 2) {
-                System.out.println("Modify is " + modify);
+                // Modify
                 if(!modify) {
                     String first = textfield_1.getText();
                     String last = textfield_2.getText();
@@ -359,7 +376,6 @@ public class MainFXController {
                         if (first.equalsIgnoreCase(e.getFirstName()) && last.equalsIgnoreCase(e.getLastName()) && age == e.getAge()) {
                             employeeGlobal = e;
                             exist = true;
-                            System.out.println("MODIFYYYYYYYYYYYYY");
                             modify = true;
                             break;
                         }
@@ -376,7 +392,6 @@ public class MainFXController {
                         textfield_3.setPromptText("New Age");
                         textfield_4.setPromptText("New Position");
 
-                        System.out.println("EXIST!");
                     }
                 } else {
                     modify = false;
@@ -397,18 +412,20 @@ public class MainFXController {
                         employeeGlobal.setPosition(position);
                     }
                 }
-                // Modify
+
             } else if (nr == 3){
-                System.out.println("HHHHHHHHHHEEEEEEREEEEEE HIRE");
+                // Hire
+
                 String first = textfield_1.getText();
                 String last = textfield_2.getText();
                 int age = Integer.parseInt(textfield_3.getText());
                 String position = textfield_4.getText();
                 new Employee(first, last, age, position, false);
 
-                // Hire
+
             } else if (nr == 4){
-                System.out.println("HHHHHHHHHHEEEEEEREEEEEE FIRE");
+                // Fire
+
                 String first = textfield_1.getText();
                 String last = textfield_2.getText();
                 int age = Integer.parseInt(textfield_3.getText());
@@ -422,7 +439,7 @@ public class MainFXController {
                     }
                     i++;
                 }
-                // Fire
+
             }
         }
     }
@@ -436,6 +453,10 @@ public class MainFXController {
                 textfield_1.setVisible(false);
                 textfield_2.setVisible(false);
                 textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
 
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
@@ -449,6 +470,10 @@ public class MainFXController {
                 textfield_1.setVisible(false);
                 textfield_2.setVisible(false);
                 textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
 
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
@@ -459,11 +484,25 @@ public class MainFXController {
                 btn_2.setText("GPU");
                 btn_3.setText("RAM");
                 btn_5.setText("Back");
+                abstractNext = true;
 
             } else if (scene == 2) {
+                abstractPrev = true;
+
                 textfield_1.setVisible(false);
                 textfield_2.setVisible(false);
                 textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
+
+                if(abstractNext) {
+                    componentClicked = nrGlobal;
+                    abstractNext = false;
+                } else {
+                    nr = componentClicked;
+                }
 
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
@@ -482,10 +521,20 @@ public class MainFXController {
                     btn_2.setText("HyperX");
                     btn_5.setText("Back");
                 }
+
             } else if (scene == 3) {
                 textfield_1.setVisible(false);
                 textfield_2.setVisible(false);
                 textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
+
+                if (abstractPrev) {
+                    getCorporation();
+                    abstractPrev = false;
+                }
 
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
@@ -497,7 +546,9 @@ public class MainFXController {
                 btn_3.setText("Delete");
                 btn_5.setText("Back");
             } else if (scene == 4) {
-                if(nrGlobal != 1) {
+                if(nrGlobal == 2) {
+                    listView.setVisible(false);
+
                     btn_1.setVisible(true);
                     btn_2.setVisible(false);
                     btn_3.setVisible(false);
@@ -508,15 +559,54 @@ public class MainFXController {
                     textfield_1.setVisible(true);
                     textfield_2.setVisible(true);
                     textfield_3.setVisible(true);
+                    textfield_4.setVisible(true);
+                    textfield_1.setPromptText("Model");
+                    textfield_2.setPromptText("Ranking");
+                    textfield_3.setPromptText("Memory");
+                    textfield_4.setPromptText("Price(MDL)");
+                    vboxText.setVisible(true);
 
                     finalScene = true;
-                } else {
+                } else if(nrGlobal == 1){
+                    listView.setVisible(true);
+                    vboxText.setVisible(false);
                     showList = true;
+                    btn_1.setVisible(false);
+                    btn_2.setVisible(false);
+                    btn_3.setVisible(false);
+                    btn_4.setVisible(false);
+                    btn_5.setText("Back");
+
+
+                } else if(nrGlobal == 3){
+                    listView.setVisible(false);
+                    btn_1.setVisible(true);
+                    btn_2.setVisible(false);
+                    btn_3.setVisible(false);
+                    btn_4.setVisible(false);
+                    btn_1.setText("Confirm");
+                    btn_5.setText("Cancel");
+
+                    textfield_1.setVisible(true);
+                    textfield_2.setVisible(true);
+                    textfield_1.setPromptText("Model");
+                    textfield_2.setPromptText("Memory");
+                    vboxText.setVisible(true);
+
+                    finalScene = true;
                 }
 
             }
         } else if (method.equalsIgnoreCase("Factory")) {
             if (scene == 0) {
+                textfield_1.setVisible(false);
+                textfield_2.setVisible(false);
+                textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
+
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
                 btn_3.setVisible(true);
@@ -526,6 +616,15 @@ public class MainFXController {
                 btn_1.setText("Abstract Factory");
                 btn_2.setText("Prototype");
             } else if (scene == 1) {
+                factoryNext = true;
+                textfield_1.setVisible(false);
+                textfield_2.setVisible(false);
+                textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
+
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
                 btn_3.setVisible(true);
@@ -536,6 +635,18 @@ public class MainFXController {
                 btn_3.setText("RAM");
                 btn_5.setText("Back");
             } else if (scene == 2) {
+                if(factoryNext) {
+                    componentClicked = nrGlobal;
+                    factoryNext = false;
+                }
+                textfield_1.setVisible(false);
+                textfield_2.setVisible(false);
+                textfield_3.setVisible(false);
+                textfield_4.setVisible(false);
+                textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
+
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
                 btn_3.setVisible(true);
@@ -546,16 +657,59 @@ public class MainFXController {
                 btn_3.setText("Delete");
                 btn_5.setText("Back");
             } else if (scene == 3) {
-                if(nrGlobal != 1) {
+                if(nrGlobal == 2) {
+                    textfield_1.setVisible(true);
+                    textfield_2.setVisible(true);
+                    textfield_3.setVisible(true);
+                    textfield_4.setVisible(true);
+                    textfield_5.setVisible(true);
+                    listView.setVisible(false);
+                    vboxText.setVisible(true);
+
                     btn_1.setVisible(true);
                     btn_2.setVisible(false);
                     btn_3.setVisible(false);
                     btn_4.setVisible(false);
                     btn_1.setText("Confirm");
                     btn_5.setText("Cancel");
+
+                    textfield_1.setPromptText("Corporation");
+                    textfield_2.setPromptText("Model");
+                    textfield_3.setPromptText("Year");
+                    textfield_4.setPromptText("Ranking");
+                    textfield_5.setPromptText("Price(MDL)");
+
                     finalScene = true;
-                }else {
+                }else if(nrGlobal == 1){
+                    listView.setVisible(true);
                     showList = true;
+
+                    btn_1.setVisible(false);
+                    btn_2.setVisible(false);
+                    btn_3.setVisible(false);
+                    btn_4.setVisible(false);
+                    btn_5.setText("Back");
+
+                } else if (nrGlobal == 3){
+                    textfield_1.setVisible(true);
+                    textfield_2.setVisible(true);
+                    textfield_3.setVisible(false);
+                    textfield_4.setVisible(false);
+                    textfield_5.setVisible(false);
+                    listView.setVisible(false);
+                    vboxText.setVisible(true);
+
+                    textfield_1.setPromptText("Model");
+                    textfield_2.setPromptText("Year");
+
+                    btn_1.setVisible(true);
+                    btn_2.setVisible(false);
+                    btn_3.setVisible(false);
+                    btn_4.setVisible(false);
+                    btn_1.setText("Confirm");
+                    btn_5.setText("Cancel");
+
+                    finalScene = true;
                 }
             }
         } else if (method.equalsIgnoreCase("Prototype")) {
@@ -565,6 +719,8 @@ public class MainFXController {
                 textfield_3.setVisible(false);
                 textfield_4.setVisible(false);
                 textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
 
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
@@ -580,6 +736,8 @@ public class MainFXController {
                 textfield_3.setVisible(false);
                 textfield_4.setVisible(false);
                 textfield_5.setVisible(false);
+                listView.setVisible(false);
+                vboxText.setVisible(false);
 
                 btn_1.setVisible(true);
                 btn_2.setVisible(true);
@@ -593,6 +751,7 @@ public class MainFXController {
                 btn_5.setText("Back");
             } else if (scene == 2) {
                 if(nrGlobal != 1) {
+                    listView.setVisible(false);
                     btn_1.setVisible(true);
                     btn_2.setVisible(false);
                     btn_3.setVisible(false);
@@ -606,9 +765,11 @@ public class MainFXController {
                     textfield_3.setVisible(true);
                     textfield_4.setVisible(true);
                     textfield_5.setVisible(false);
+                    vboxText.setVisible(true);
 
                     finalScene = true;
                 }else {
+                    listView.setVisible(true);
                     showList = true;
                     btn_1.setVisible(false);
                     btn_2.setVisible(false);
@@ -616,11 +777,32 @@ public class MainFXController {
                     btn_4.setVisible(false);
                     btn_5.setVisible(true);
                     btn_5.setText("Back");
+                    vboxText.setVisible(false);
                 }
             }
         }
     }
 
-    // -----------------------------------------------------------------------------------------------------------------
+    protected void getCorporation(){
+        if(componentClicked == 1){
+            if(nrGlobal == 1){
+                corporationGlobal = "Intel";
+            } else if (nrGlobal == 2){
+                corporationGlobal = "AMD";
+            }
+        } else if (componentClicked == 2){
+            if(nrGlobal == 1){
+                corporationGlobal = "Nvidia";
+            } else if (nrGlobal == 2){
+                corporationGlobal = "AMD";
+            }
+        } else if (componentClicked == 3){
+            if(nrGlobal == 1){
+                corporationGlobal = "Kingston";
+            } else if (nrGlobal == 2){
+                corporationGlobal = "HyperX";
+            }
+        }
+    }
 
 }
