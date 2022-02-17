@@ -3,6 +3,7 @@ package md.dani3lz.tmpslab1;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import md.dani3lz.tmpslab1.AbstractFactory.ComponentsFactory;
 import md.dani3lz.tmpslab1.Prototype.Employee;
 import md.dani3lz.tmpslab1.Singletone.ComponentsStore;
 import md.dani3lz.tmpslab1.AbstractFactory.*;
@@ -41,8 +42,6 @@ public class MainFXController {
     String corporationGlobal = "";
     int componentClicked = 0;
     boolean abstractNext = false, abstractPrev = false, factoryNext = false;
-
-    private final int limitAbstract = 4, limitFactory = 3, limitPrototype = 2;
 
     @FXML
     protected void onBtn1Click() {
@@ -143,14 +142,17 @@ public class MainFXController {
 
     protected void checkLimit(){
         if(methodGlobal.equalsIgnoreCase("AbstractFactory")){
+            int limitAbstract = 4;
             if(sceneGlobal < limitAbstract){
                 sceneGlobal++;
             }
         } else if (methodGlobal.equalsIgnoreCase("Factory")){
+            int limitFactory = 3;
             if(sceneGlobal < limitFactory){
                 sceneGlobal++;
             }
         } else if (methodGlobal.equalsIgnoreCase("Prototype")){
+            int limitPrototype = 2;
             if(sceneGlobal < limitPrototype){
                 sceneGlobal++;
             }
@@ -298,11 +300,14 @@ public class MainFXController {
                 int memory = Integer.parseInt(textfield_3.getText());
                 int price = Integer.parseInt(textfield_4.getText());
                 if (componentClicked == 1) { // CPU
-                    new CPUAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "CPU");
+                    new ComponentsFactory().getFactory(corporationGlobal,model,rank,price,memory,"CPU");
+                    //new CPUAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "CPU");
                 } else if (componentClicked == 2) { // GPU
-                    new GPUAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "GPU");
+                    new ComponentsFactory().getFactory(corporationGlobal,model,rank,price,memory,"GPU");
+                    //new GPUAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "GPU");
                 } else if (componentClicked == 3) { // RAM
-                    new RAMAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "RAM");
+                    new ComponentsFactory().getFactory(corporationGlobal,model,rank,price,memory,"RAM");
+                    //new RAMAbstractFactory().createComponent(corporationGlobal, model, rank, price, memory, "RAM");
                 }
             } else if(nr==3){
                 // Delete
