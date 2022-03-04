@@ -42,8 +42,13 @@ class MessageSender implements Runnable {
                 sendMessage(in.readLine());
             } catch(Exception e) {
                 System.err.println(e);
+                stopSender();
             }
         }
+    }
+
+    public void stopSender(){
+        sock.close();
     }
 }
 
@@ -51,6 +56,7 @@ class MessageReceiver implements Runnable {
     DatagramSocket sock;
     String username;
     byte buf[];
+
     MessageReceiver(DatagramSocket s, String u) {
         sock = s;
         buf = new byte[1024];
@@ -68,8 +74,13 @@ class MessageReceiver implements Runnable {
                 }
             } catch(Exception e) {
                 System.err.println(e);
+                stopReceiver();
             }
         }
+    }
+
+    public void stopReceiver(){
+        sock.close();
     }
 }
 

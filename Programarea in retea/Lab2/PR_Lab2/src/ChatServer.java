@@ -5,12 +5,12 @@ import java.util.*;
 public class ChatServer extends Thread {
     public final static int PORT = 1234;
     private final static int BUFFER = 1024;
-
     private DatagramSocket socket;
     private ArrayList<InetAddress> clientAddresses;
     private ArrayList<Integer> clientPorts;
     private ArrayList<String> clientUsernames;
     private HashSet<String> existingClients;
+
     public ChatServer() throws IOException {
         socket = new DatagramSocket(PORT);
         clientAddresses = new ArrayList();
@@ -61,8 +61,13 @@ public class ChatServer extends Thread {
                 }
             } catch(Exception e) {
                 System.err.println(e);
+                stopServer();
             }
         }
+    }
+
+    public void stopServer(){
+        socket.close();
     }
 
     public static void main(String args[]) throws Exception {
