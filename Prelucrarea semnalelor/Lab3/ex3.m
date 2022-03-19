@@ -1,16 +1,10 @@
 Vari = input('Setati testcase:');
 if Vari == 1
-    
-    Ts=0.01;T=10;
-    
-else if Vari == 2
-        
+    Ts=0.01;T=10; 
+else if Vari == 2      
     Ts=0.05;T=15;
-    
-    else if Vari == 3
-            
+    else if Vari == 3  
     Ts=0.1;T=20;
-    
         else fprintf('ceva')
         end
      end

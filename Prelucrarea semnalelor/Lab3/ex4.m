@@ -1,34 +1,26 @@
 Vari = input('Setati testcase:');
 if Vari == 1
-    
     Ts=0.01;
     T=5;
     A=0.45;
     w=0.6;
-    
     %500
-else if Vari == 2
-        
+else if Vari == 2  
     Ts=0.05;
     T=15;
     A=0.25;
     w=0.4;
     %300
-    else if Vari == 3
-            
+    else if Vari == 3    
     Ts=0.1;
     T=10;
     A=0.15;
     w=0.2;
-    
     %100
         else fprintf('ceva')
         end
      end
 end
-
-
-
 
 N=T/Ts;t=-T/2:Ts:T/2;
 y=A*rectpuls(t,w);
